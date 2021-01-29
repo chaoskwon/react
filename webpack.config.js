@@ -6,15 +6,19 @@ module.exports = {
     entry: './src/index.js',
     output: {
         path: path.join(__dirname, '/dist'),
-        filename: '[hash]_bundle.js'
+        filename: '[hash]_bundle.js',
     },
     resolve: {
-        extensions: [".wasm", ".mjs", ".js", ".jsx", ".ts", ".tsx", ".json"],
+        extensions: [".js", ".jsx",".css",".qcss"],
         alias: {
-            // Utilities: path.resolve(__dirname, 'src/utilities/'),
+            Css: path.resolve(__dirname, 'src/css/'),
+            Scss: path.resolve(__dirname, 'src/scss/'),
+            Utilities: path.resolve(__dirname, 'src/utilities/'),
+            Img: path.resolve(__dirname, 'src/img/'),
             // Templates: path.resolve(__dirname, 'src/templates/'),
             '@': path.resolve(__dirname, 'src/')
-        }
+        },
+        modules: ["node_modules"]
     },
     module: {
         rules: [
@@ -37,12 +41,34 @@ module.exports = {
               ],
             },
             {
-              test:  /\.css$/,
-              use: [MiniCssExtractPlugin.loader, "css-loader"]
+              test: /\.(jpe?g|png|gif|svg)$/i, 
+              loader: 'file-loader',
             },
             {
-                test: /\.(jpe?g|png|gif|svg)$/i, 
-                loader: 'file-loader',
+              test: /\.css$/,
+              use : [
+                {
+                  loader: 'style-loader',
+                },
+                {
+                  loader: 'css-loader',
+                  options: {
+                    sourceMap: true,
+                  }
+                }
+              ]
+            },
+            {
+              test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+              use: [
+                {
+                  loader: 'file-loader',
+                  options: {
+                    name: '[name].[ext]',
+                    // outputPath: 'fonts/'
+                  }
+                }
+              ]
             }
         ]
     },
@@ -52,11 +78,14 @@ module.exports = {
         }),
         new MiniCssExtractPlugin({
             filename: "[name].css",
-        })
+            ignoreOrder: true,
+        }),
     ],
     devServer: {
       host: 'localhost',
       port: 3000,
-      open: true, // open page when start
+      publicPath: "/",
+      // contentBase: "./public",
+      // open: true, // open page when start
     },
 }
